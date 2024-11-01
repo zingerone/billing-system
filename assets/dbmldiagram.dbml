@@ -1,0 +1,142 @@
+Table user {
+    id UUID [pk]
+    email VARCHAR(50) [not null, unique]
+    hash VARCHAR
+    password VARCHAR
+    role user_role_enum
+    is_active BOOLEAN
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}
+
+Enum user_role_enum {
+    ADMIN
+    CUSTOMER_SERVICE
+    DEBITOR
+    CREDITOR
+}
+
+Table ledger {
+    id UUID [pk]
+    user_id UUID [ref: > user.id]
+    account_code account_code_enum
+    balance DECIMAL(10, 2)
+    debit DECIMAL(10, 2)
+    credit DECIMAL(10, 2)
+    currency VARCHAR(3)
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}
+
+Enum account_code_enum {
+    LOAN
+    CASH
+}
+
+Table ledger_transaction {
+    id UUID [pk]
+    ledger_id UUID [ref: > ledger.id]
+    amount DECIMAL(10, 2)
+    transaction_type ledger_transaction_type_enum
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}
+
+Enum ledger_transaction_type_enum {
+    DEBIT
+    CREDIT
+}
+
+Table loan {
+    id UUID [pk]
+    debitor_id UUID [ref: > user.id]
+    creditor_id UUID [ref: > user.id]
+    amount DECIMAL(10, 2)
+    interest_rate DECIMAL(5, 2)
+    total_amount DECIMAL(10, 2)
+    term INT
+    term_type loan_term_type_enum
+    current_debt DECIMAL(10, 2)
+    status loan_status_enum
+    is_delinquent BOOLEAN
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+    approval_id UUID [ref: > user.id]
+    approved_at_utc TIMESTAMP
+}
+
+Enum loan_term_type_enum {
+    MONTHLY
+    WEEKLY
+    DAILY
+}
+
+Enum loan_status_enum {
+    APPROVED
+    REJECTED
+    PENDING
+    DRAFT
+}
+
+Table loan_delinquent_history {
+    id UUID [pk]
+    loan_id UUID [ref: > loan.id]
+    remark TEXT
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}
+
+Enum installment_status_enum {
+    DRAFT
+    PENDING
+    PAID
+    OVERDUE
+}
+
+Table installment {
+    id UUID [pk]
+    loan_id UUID [ref: > loan.id]
+    period INT
+    amount DECIMAL(10, 2)
+    status installment_status_enum
+    start_date_utc TIMESTAMP
+    due_date_utc TIMESTAMP
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}
+
+Enum payment_type_enum {
+    INSTALLMENT
+    FULL_PAYMENT
+    PARTIAL_PAYMENT
+}
+
+Enum payment_method_enum {
+    CASH
+    BANK_TRANSFER
+    CREDIT_CARD
+    VIRTUAL_ACCOUNT
+}
+
+Table payment_channel {
+    code UUID [pk]
+    name VARCHAR(50)
+    payment_method payment_method_enum
+    third_party_code VARCHAR(50)
+    third_party_name VARCHAR(50)
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}
+
+Table payment {
+    id UUID [pk]
+    installment_id UUID [ref: > installment.id]
+    amount DECIMAL(10, 2)
+    payment_method payment_method_enum
+    payment_channel_code UUID [ref: > payment_channel.code]
+    metadata JSONB
+    metadata_output JSONB
+    paid_at_utc TIMESTAMP
+    created_at_utc TIMESTAMP
+    updated_at_utc TIMESTAMP
+}

@@ -16,3 +16,8 @@
 ```code
 ./api/api.yaml
 ```
+
+
+# Design
+## Database Design
+![Database Design](./assets/billing-system.png)
