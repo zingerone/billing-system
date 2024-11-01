@@ -1,0 +1,44 @@
+# api/api.yaml
+openapi: 3.0.1
+info:
+  title: OpenAPI Definition for Billing API
+  version: v0
+tags:
+  - name: billing
+    description: Operations related to billing
+paths:
+  /outstanding:
+    get:
+      tags:
+        - billing
+      summary: Get the balance of a loan
+      operationId: GetOutstanding
+      parameters:
+        - $ref: '#/components/parameters/userIdQueryParameter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOutstandingResponse'
+
+components:
+  parameters:
+    userIdQueryParameter:
+      name: userId
+      in: query
+      required: true
+      schema:
+        type: string
+  schemas:
+    GetOutstandingResponse:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: double
+          example: 100.0
+        currency:
+          type: string
+          example: IDR
